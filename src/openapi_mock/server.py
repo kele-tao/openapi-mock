@@ -40,6 +40,7 @@ class ServerConfig:
     verbose: bool = True
     max_body_bytes: int = 1_048_576
     rng: random.Random = field(default_factory=lambda: random.Random(0))
+    record_lock: threading.Lock = field(default_factory=threading.Lock)
 
     def __post_init__(self) -> None:
         self.rng = random.Random(self.seed * 7919 + 13)
@@ -218,13 +219,13 @@ class MockHandler(BaseHTTPRequestHandler):
         if hit is None:
             allowed = [verb for verb in ("GET", "POST", "PUT", "PATCH", "DELETE")]
             if any(spec.match(verb.lower(), path) is not None for verb in allowed):
+                self._record(method, path, query, None, 405)
                 self._send_problem(
                     405, "Method Not Allowed", method + " is not defined for " + path
                 )
-                self._record(method, path, query, None, 405)
                 return 405
-            self._send_problem(404, "Not Found", "no operation matches " + path)
             self._record(method, path, query, None, 404)
+            self._send_problem(404, "Not Found", "no operation matches " + path)
             return 404
         operation, path_values = hit
         # HEAD is served by the GET operation, so validate against the GET method.
@@ -232,33 +233,33 @@ class MockHandler(BaseHTTPRequestHandler):
 
         body, body_error = self._read_body()
         if body_error is not None:
-            self._send_problem(422, "Unprocessable Entity", body_error)
             self._record(method, path, query, body, 422)
+            self._send_problem(422, "Unprocessable Entity", body_error)
             return 422
 
         violations = self._check_request(operation, effective, path, query, body)
         if violations:
+            self._record(method, path, query, body, 422)
             self._send_problem(
                 422,
                 "Unprocessable Entity",
                 "request does not satisfy " + operation.operation_id,
                 [{"location": item.kind, "detail": item.detail} for item in violations],
             )
-            self._record(method, path, query, body, 422)
             return 422
 
         if self.config.error_rate > 0 and self.config.rng.random() < self.config.error_rate:
+            self._record(method, path, query, body, 500)
             self._send_problem(
                 500,
                 "Injected Failure",
                 "the mock injected a fault (--error-rate " + str(self.config.error_rate) + ")",
             )
-            self._record(method, path, query, body, 500)
             return 500
 
         status, payload = self._success(operation, method, path, path_values, body)
-        self._send_json(status, payload, {"X-Mock-Seed": str(self.config.seed)})
         self._record(method, path, query, body, status)
+        self._send_json(status, payload, {"X-Mock-Seed": str(self.config.seed)})
         return status
 
     def _check_request(
@@ -347,6 +348,14 @@ class MockHandler(BaseHTTPRequestHandler):
         body: Any,
         status: int,
     ) -> None:
+        """Append one JSON line to the record file, before the response is sent.
+
+        Recording *before* the reply matters: a keep-alive client can fire the next
+        request as soon as it has read the body, and two handler threads appending
+        afterwards would interleave lines and produce a log that no longer matches
+        the order the client made the requests in. The lock keeps concurrent
+        handler threads from splitting a line.
+        """
         target = self.config.record_path
         if target is None:
             return
@@ -363,8 +372,10 @@ class MockHandler(BaseHTTPRequestHandler):
             status=status,
         )
         target.parent.mkdir(parents=True, exist_ok=True)
-        with target.open("a", encoding="utf-8") as handle:
-            handle.write(json.dumps(record.to_json(), ensure_ascii=False) + "\n")
+        line = json.dumps(record.to_json(), ensure_ascii=False) + "\n"
+        with self.config.record_lock:
+            with target.open("a", encoding="utf-8") as handle:
+                handle.write(line)
 
 
 def echo_path_identifier(payload: Any, schema: dict[str, Any], path_values: dict[str, str]) -> Any:

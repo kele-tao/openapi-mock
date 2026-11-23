@@ -176,6 +176,27 @@ def test_record_mode_writes_replayable_log(petstore: pathlib.Path, tmp_path: pat
     assert [record.status for _, record in records] == [200, 200, 422]
 
 
+def test_record_log_preserves_request_order(petstore: pathlib.Path, tmp_path: pathlib.Path) -> None:
+    """A keep-alive client must see its requests in the log in the order it made them.
+
+    Regression: the log used to be written after the response was flushed, so two
+    requests could be appended out of order on Python 3.10 (server handler threads
+    race with the client's next request). Recording now happens before the reply.
+    """
+    from openapi_mock.requests import read_log
+
+    log = tmp_path / "ordered.log"
+    with running(petstore, record_path=log) as instance:
+        expected = []
+        for limit in ("1", "2", "3", "1000", "4"):
+            status, _, _ = request("GET", instance.base_url + "/pets?limit=" + limit)
+            expected.append((limit, status))
+    records = read_log(log)
+    seen = [(record.query["limit"][0], record.status) for _, record in records]
+    assert seen == expected
+    assert [status for _, status in seen] == [200, 200, 200, 422, 200]
+
+
 def test_head_request_returns_headers_without_body(server) -> None:
     req = urllib.request.Request(server.base_url + "/health", method="HEAD")  # noqa: S310
     with urllib.request.urlopen(req, timeout=5) as response:  # noqa: S310
