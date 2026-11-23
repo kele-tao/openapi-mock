@@ -29,7 +29,14 @@ First public release.
 - Request validation for path, query, header and JSON body parameters, answering
   RFC 7807 `application/problem+json` 422 responses.
 - Benchmark harness (`benchmarks/run.py`) that produces the table in the README.
-- 137 pytest tests, ruff-clean source, GitHub Actions CI on Python 3.10-3.12.
+- 139 pytest tests, ruff-clean source, GitHub Actions CI on Python 3.10-3.12.
+
+### Fixed
+
+- `serve --record` now appends each request line *before* replying. Recording after
+  the response let two keep-alive requests be logged out of order (reproducible on
+  Python 3.10), which made a recorded log disagree with the order the client made
+  its calls. A regression test asserts the log order now.
 
 ### Known limitations
 

@@ -197,6 +197,30 @@ def test_record_log_preserves_request_order(petstore: pathlib.Path, tmp_path: pa
     assert [status for _, status in seen] == [200, 200, 200, 422, 200]
 
 
+def test_concurrent_recording_never_splits_lines(
+    petstore: pathlib.Path, tmp_path: pathlib.Path
+) -> None:
+    """Eight threads recording at once must still produce one complete JSON per line."""
+    import json as json_module
+
+    log = tmp_path / "concurrent.log"
+    with running(petstore, record_path=log) as instance:
+        threads = [
+            threading.Thread(target=request, args=("GET", instance.base_url + "/health"))
+            for _ in range(8)
+        ]
+        for thread in threads:
+            thread.start()
+        for thread in threads:
+            thread.join(timeout=10)
+    lines = [line for line in log.read_text(encoding="utf-8").splitlines() if line.strip()]
+    assert len(lines) == 8
+    for line in lines:
+        payload = json_module.loads(line)
+        assert payload["path"] == "/health"
+        assert payload["status"] == 200
+
+
 def test_head_request_returns_headers_without_body(server) -> None:
     req = urllib.request.Request(server.base_url + "/health", method="HEAD")  # noqa: S310
     with urllib.request.urlopen(req, timeout=5) as response:  # noqa: S310

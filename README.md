@@ -7,7 +7,7 @@ Turn any OpenAPI 3 document into a running, contract-valid, deterministic mock A
 [![ci](https://github.com/kele-tao/openapi-mock/actions/workflows/ci.yml/badge.svg)](https://github.com/kele-tao/openapi-mock/actions/workflows/ci.yml)
 ![python](https://img.shields.io/badge/python-3.10%2B-blue)
 ![license](https://img.shields.io/badge/license-MIT-green)
-![tests](https://img.shields.io/badge/tests-137%20passing-brightgreen)
+![tests](https://img.shields.io/badge/tests-139%20passing-brightgreen)
 ![dependencies](https://img.shields.io/badge/runtime%20deps-0-brightgreen)
 
 ---
@@ -218,6 +218,8 @@ $ openapi-mock validate --requests examples/requests.log --spec examples/petstor
   6 requests, 5 contract violations
 ```
 
+![openapi-mock validate](docs/screenshot-validate.png)
+
 Exit code 1 when anything is wrong, so it drops straight into CI.
 `examples/requests.log` is a hand-written fixture in exactly the JSONL format
 `--record` emits (one object per line, `method`, `path`, `query`, `headers`,
@@ -361,16 +363,23 @@ code is documented in [docs/CLI.md](docs/CLI.md).
 
 ```bash
 pip install -e ".[dev]"
-pytest -q                  # 137 tests, no network, ~11 s
+pytest -q                  # 139 tests, no network, ~5 s
 ruff check .               # clean at line length 100
 python benchmarks/run.py   # regenerates benchmarks/results.json
-python ../.tools/term_screenshot.py ...   # docs/screenshot.png, real output
 ```
+
+`pytest` also runs straight from a checkout without installing (the suite adds
+`src` to `sys.path` via `pyproject.toml`), which is handy when you only want to
+check a change.
 
 Layout: `src/openapi_mock` (implementation), `tests` (pytest),
 `examples` (the petstore spec and a sample request log), `benchmarks`
 (the only source of the numbers above), `docs` (screenshot, architecture,
-roadmap).
+CLI reference, roadmap).
+
+`docs/screenshot.png` is a real terminal capture of
+`python -m openapi_mock summary examples/petstore.json` — re-run that command and
+you get the same table in your own shell.
 
 ## Contributing
 
