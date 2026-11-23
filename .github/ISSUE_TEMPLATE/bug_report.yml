@@ -1,0 +1,55 @@
+name: Bug report
+description: Something behaved differently from what the README promises
+title: "[bug] "
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for the report. A minimal OpenAPI document that reproduces the
+        problem is worth more than a long description.
+  - type: input
+    id: version
+    attributes:
+      label: openapi-mock version
+      description: Output of `openapi-mock --version`
+      placeholder: openapi-mock 1.0.0
+    validations:
+      required: true
+  - type: input
+    id: python
+    attributes:
+      label: Python and OS
+      placeholder: Python 3.12.10 on Windows 11
+    validations:
+      required: true
+  - type: textarea
+    id: command
+    attributes:
+      label: Command
+      render: shell
+      placeholder: openapi-mock serve examples/petstore.json --seed 42
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behaviour
+    validations:
+      required: true
+  - type: textarea
+    id: actual
+    attributes:
+      label: Actual behaviour
+      description: Paste the output. Please remove any tokens from recorded logs.
+      render: shell
+    validations:
+      required: true
+  - type: textarea
+    id: repro
+    attributes:
+      label: Minimal spec that reproduces it
+      description: A few paths are enough. Remove anything confidential.
+      render: json
+    validations:
+      required: false

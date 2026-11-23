@@ -1,0 +1,38 @@
+{
+  "python": "3.12.10",
+  "platform": "Windows",
+  "spec_load_ms": 8.08,
+  "single_endpoint": {
+    "requests": 200,
+    "p50_ms": 3.23,
+    "p95_ms": 12.17,
+    "mean_ms": 4.52,
+    "max_ms": 23.69
+  },
+  "mixed_endpoints": {
+    "requests": 180,
+    "p50_ms": 5.11,
+    "p95_ms": 13.79,
+    "mean_ms": 5.98,
+    "max_ms": 27.06
+  },
+  "replay": {
+    "log_lines": 6,
+    "replays": 30,
+    "median_ms": 0.169,
+    "per_request_us": 28.1
+  },
+  "generation": {
+    "payloads": 1600,
+    "total_ms": 1679.12,
+    "per_payload_ms": 1.049
+  },
+  "operations": 17,
+  "templated_route": {
+    "requests": 100,
+    "p50_ms": 5.11,
+    "p95_ms": 14.49,
+    "mean_ms": 7.13,
+    "max_ms": 48.42
+  }
+}

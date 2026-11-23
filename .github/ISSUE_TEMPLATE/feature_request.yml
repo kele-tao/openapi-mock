@@ -1,0 +1,40 @@
+name: Feature request
+description: Suggest a capability the mock should have
+title: "[feature] "
+labels: ["enhancement"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Before opening, check `docs/ROADMAP.md` - it lists what v1.0
+        deliberately left out and why.
+  - type: textarea
+    id: problem
+    attributes:
+      label: The problem
+      description: What are you unable to do today, and what do you do instead?
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed behaviour
+      description: The command line or output you would expect.
+    validations:
+      required: true
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives considered
+      description: Other mock servers, scripts, or workarounds.
+    validations:
+      required: false
+  - type: checkboxes
+    id: scope
+    attributes:
+      label: Scope check
+      options:
+        - label: This can work offline, with no runtime dependencies
+          required: false
+        - label: I am willing to open a pull request for it
+          required: false

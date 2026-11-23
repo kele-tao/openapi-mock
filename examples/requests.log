@@ -1,0 +1,6 @@
+{"method":"GET","path":"/pets","query":{"limit":["20"],"status":["available"]},"headers":{"X-Request-Id":"3f1c9c3e-6e2a-4a1c-9f0f-2d1b6a7c8e90","Accept":"application/json"},"status":200}
+{"method":"GET","path":"/pets/9223c7a3-b5c7-5299-b238-6ef81069ec0b","query":{},"headers":{"Authorization":"Bearer demo-token","Accept":"application/json"},"status":200}
+{"method":"POST","path":"/orders","query":{},"headers":{"Authorization":"Bearer demo-token","Content-Type":"application/json"},"body":{"petId":"9223c7a3-b5c7-5299-b238-6ef81069ec0b","quantity":2,"note":"leave at the door"},"status":201}
+{"method":"GET","path":"/pets","query":{"limit":["250"]},"headers":{"Accept":"application/json"},"status":200}
+{"method":"POST","path":"/customers","query":{},"headers":{"Authorization":"Bearer demo-token","Content-Type":"application/json"},"body":{"email":"not-an-email","name":"A"},"status":201}
+{"method":"GET","path":"/orders","query":{"status":["refunded"],"page":["1"]},"headers":{"Authorization":"Bearer demo-token"},"status":200}

@@ -1,0 +1,81 @@
+{
+  "$id": "https://petstore.example.com/schemas/common.json",
+  "Money": {
+    "type": "object",
+    "required": [
+      "amount",
+      "currency"
+    ],
+    "properties": {
+      "amount": {
+        "type": "number",
+        "minimum": 0,
+        "multipleOf": 0.01
+      },
+      "currency": {
+        "type": "string",
+        "enum": [
+          "EUR",
+          "USD",
+          "GBP",
+          "JPY"
+        ]
+      }
+    }
+  },
+  "Address": {
+    "type": "object",
+    "required": [
+      "line1",
+      "city",
+      "country"
+    ],
+    "properties": {
+      "line1": {
+        "type": "string",
+        "minLength": 5,
+        "maxLength": 60,
+        "example": "44 Harbour Road"
+      },
+      "line2": {
+        "type": "string",
+        "maxLength": 60
+      },
+      "city": {
+        "type": "string",
+        "minLength": 2
+      },
+      "postalCode": {
+        "type": "string",
+        "pattern": "^[0-9]{4}-[0-9]{3}$"
+      },
+      "country": {
+        "type": "string",
+        "minLength": 2,
+        "maxLength": 2
+      }
+    }
+  },
+  "Page": {
+    "type": "object",
+    "required": [
+      "items",
+      "total"
+    ],
+    "properties": {
+      "items": {
+        "type": "array",
+        "items": {}
+      },
+      "total": {
+        "type": "integer",
+        "minimum": 0
+      },
+      "next": {
+        "type": "string",
+        "format": "uri",
+        "nullable": true
+      }
+    }
+  }
+}
