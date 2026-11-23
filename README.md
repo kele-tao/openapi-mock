@@ -1,5 +1,7 @@
 # openapi-mock
 
+**English** | [简体中文](README.zh-CN.md)
+
 Turn any OpenAPI 3 document into a running, contract-valid, deterministic mock API — with one command, zero dependencies, and request validation that tells you exactly which field is wrong.
 
 ![openapi-mock summary](docs/screenshot.png)
